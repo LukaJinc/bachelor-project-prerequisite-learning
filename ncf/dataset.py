@@ -13,7 +13,7 @@ from tqdm import tqdm
 # Copyright (c) Recommenders contributors. All rights reserved.
 # Licensed under the MIT License.
 
-from constants import (
+from ncf.constants import (
     DEFAULT_ITEM_COL,
     DEFAULT_USER_COL,
     DEFAULT_RATING_COL,
