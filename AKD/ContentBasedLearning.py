@@ -48,15 +48,28 @@ class ContentBasedLearning:
 
         # Load the embedding dataframes
         self.embedding_dfs = {
-            'al_cpl': pd.read_csv(EMBEDDINGS_PATH + r'\al_cpl_embeddings_mistral.csv'),
-            'drive': pd.read_csv(EMBEDDINGS_PATH + r'\drive_embeddings_mistral.csv'),
-            'mooc': pd.read_csv(EMBEDDINGS_PATH + r'\mooc_embeddings_mistral.csv')
+            'al_cpl': pd.read_csv(EMBEDDINGS_PATH + r'\al_cpl_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index'),
+            'drive': pd.read_csv(EMBEDDINGS_PATH + r'\drive_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index'),
+            'mooc': pd.read_csv(EMBEDDINGS_PATH + r'\mooc_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index')
         }
+
+        self.embeddings_dict = dict()
+        self.embeddings_dict['al_cpl'] = dict()
+        self.embeddings_dict['drive'] = dict()
+        self.embeddings_dict['mooc'] = dict()
+
+        for i, (key, value) in enumerate(self.embedding_dfs['al_cpl'].items()):
+            self.embeddings_dict['al_cpl'].update({i: list(value.values())})
+        for i, (key, value) in enumerate(self.embedding_dfs['mooc'].items()):
+            self.embeddings_dict['mooc'].update({i: list(value.values())})
+        for i, (key, value) in enumerate(self.embedding_dfs['drive'].items()):
+            self.embeddings_dict['drive'].update({i: list(value.values())})
 
     # Function to get embedding for a concept
     def get_embedding(self, file, concept_ind):
-        embedding = self.embedding_dfs[file].loc[concept_ind].iloc[1:].values
-        return embedding
+        # embedding = self.embedding_dfs[file].loc[concept_ind].iloc[1:].values
+        # return embedding
+        return self.embeddings_dict[file][concept_ind]
 
     # Function to process a dataset
     def process_dataset(self, df):
@@ -130,17 +143,24 @@ class ContentBasedLearning:
                 test_acc = accuracy_score(y_test.cpu().numpy(), test_preds.cpu().numpy())
                 test_f1 = f1_score(y_test.cpu().numpy(), test_preds.cpu().numpy())
 
-            print(
-                f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}, Train Accuracy: {train_acc:.4f}, Train F1: {train_f1:.4f}, Test Accuracy: {test_acc:.4f}, Test F1: {test_f1:.4f}')
-
-            print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
+            if (epoch + 1) % 10 == 0:
+                print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}, Train Accuracy: {train_acc:.4f}, Train F1: {train_f1:.4f}, Test Accuracy: {test_acc:.4f}, Test F1: {test_f1:.4f}')
 
     def generate_all_predictions(self, train):
-
         self.model.eval()  # Set the model to evaluation mode
 
         users, items, preds = [], [], []
         item = list(train["conceptB"].unique())
+
+        a_info = dict()
+        for c in train.iterrows():
+            a = c[1]
+            a_info[a['conceptA']] = (a['file'], a['conceptA_ind'])
+
+        b_info = dict()
+        for c in train.iterrows():
+            a = c[1]
+            b_info[a['conceptB']] = (a['fileB'], a['conceptB_ind'])
 
         for user in tqdm(train["conceptA"].unique()):
             used_items = set(train.loc[train['conceptA'] == user, 'conceptB'])
@@ -156,10 +176,12 @@ class ContentBasedLearning:
             # Create embeddings for user_items
             user_item_embeddings = []
             for ui in user_items:
-                embedding_a = self.get_embedding(train.loc[train['conceptA'] == ui[0], 'file'].iloc[0],
-                                                 train.loc[train['conceptA'] == ui[0], 'conceptA_ind'].iloc[0])
-                embedding_b = self.get_embedding(train.loc[train['conceptB'] == ui[1], 'fileB'].iloc[0],
-                                                 train.loc[train['conceptB'] == ui[1], 'conceptB_ind'].iloc[0])
+                ui_0 = a_info[ui[0]]
+                ui_1 = b_info[ui[1]]
+
+                embedding_a = self.get_embedding(ui_0[0], ui_0[1])
+                embedding_b = self.get_embedding(ui_1[0], ui_1[1])
+
                 combined_features = np.concatenate([embedding_a, embedding_b])
                 user_item_embeddings.append(combined_features)
 
