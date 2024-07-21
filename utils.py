@@ -26,7 +26,7 @@ def create_new_row(row, train, is_pos):
     new_row['file'] = conceptA_row['file']
     new_row['fileB'] = conceptB_row['file']
 
-    new_row['conceptA_ind'] = conceptB_row['conceptA_ind']
+    new_row['conceptA_ind'] = conceptA_row['conceptA_ind']
     new_row['conceptB_ind'] = conceptB_row['conceptB_ind']
 
     return new_row
