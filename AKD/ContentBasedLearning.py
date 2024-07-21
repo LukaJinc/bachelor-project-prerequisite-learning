@@ -1,21 +1,22 @@
 from tqdm import tqdm
+
 import tensorflow as tf
-
-tf.get_logger().setLevel('ERROR')  # only show error messages
-
-import pandas as pd
-
-from sklearn.metrics import f1_score, accuracy_score
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+import pandas as pd
+
+from sklearn.metrics import f1_score, accuracy_score
 
 from config import SEED, EMBEDDINGS_PATH
 
 from utils import *
 
 import warnings
+
+tf.get_logger().setLevel('ERROR')  # only show error messages
 
 warnings.filterwarnings('ignore')
 
@@ -48,9 +49,12 @@ class ContentBasedLearning:
 
         # Load the embedding dataframes
         self.embedding_dfs = {
-            'al_cpl': pd.read_csv(EMBEDDINGS_PATH + r'\al_cpl_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index'),
-            'drive': pd.read_csv(EMBEDDINGS_PATH + r'\drive_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index'),
-            'mooc': pd.read_csv(EMBEDDINGS_PATH + r'\mooc_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(orient='index')
+            'al_cpl': pd.read_csv(EMBEDDINGS_PATH + r'\al_cpl_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+                orient='index'),
+            'drive': pd.read_csv(EMBEDDINGS_PATH + r'\drive_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+                orient='index'),
+            'mooc': pd.read_csv(EMBEDDINGS_PATH + r'\mooc_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+                orient='index')
         }
 
         self.embeddings_dict = dict()
@@ -144,7 +148,8 @@ class ContentBasedLearning:
                 test_f1 = f1_score(y_test.cpu().numpy(), test_preds.cpu().numpy())
 
             if (epoch + 1) % 10 == 0:
-                print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}, Train Accuracy: {train_acc:.4f}, Train F1: {train_f1:.4f}, Test Accuracy: {test_acc:.4f}, Test F1: {test_f1:.4f}')
+                print(
+                    f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}, Train Accuracy: {train_acc:.4f}, Train F1: {train_f1:.4f}, Test Accuracy: {test_acc:.4f}, Test F1: {test_f1:.4f}')
 
     def generate_all_predictions(self, train):
         self.model.eval()  # Set the model to evaluation mode
@@ -200,28 +205,28 @@ class ContentBasedLearning:
 
         return pseudo_predictions
 
-    def create_new_row(self, row, train, is_pos):
-        # Find the row in train for conceptA
-        conceptA_row = train[train['conceptA'] == row['conceptA']].iloc[0]
-
-        # Find the row in train for conceptB
-        conceptB_row = train[train['conceptB'] == row['conceptB']].iloc[0]
-
-        # Create a new row with all columns from conceptA_row
-        new_row = conceptA_row.copy()
-
-        new_row['conceptA'] = row['conceptA']
-        new_row['conceptB'] = row['conceptB']
-        new_row['isPrerequisite'] = is_pos
-
-        new_row['dataset'] = 'pseudo'
-        new_row['file'] = conceptA_row['file']
-        new_row['fileB'] = conceptB_row['file']
-
-        new_row['conceptA_ind'] = conceptB_row['conceptA_ind']
-        new_row['conceptB_ind'] = conceptB_row['conceptB_ind']
-
-        return new_row
+    # def create_new_row(self, row, train, is_pos):
+    #     # Find the row in train for conceptA
+    #     conceptA_row = train[train['conceptA'] == row['conceptA']].iloc[0]
+    #
+    #     # Find the row in train for conceptB
+    #     conceptB_row = train[train['conceptB'] == row['conceptB']].iloc[0]
+    #
+    #     # Create a new row with all columns from conceptA_row
+    #     new_row = conceptA_row.copy()
+    #
+    #     new_row['conceptA'] = row['conceptA']
+    #     new_row['conceptB'] = row['conceptB']
+    #     new_row['isPrerequisite'] = is_pos
+    #
+    #     new_row['dataset'] = 'pseudo'
+    #     new_row['file'] = conceptA_row['file']
+    #     new_row['fileB'] = conceptB_row['file']
+    #
+    #     new_row['conceptA_ind'] = conceptB_row['conceptA_ind']
+    #     new_row['conceptB_ind'] = conceptB_row['conceptB_ind']
+    #
+    #     return new_row
 
     def generate_pseudo_data(self, train_file):
         train = pd.read_csv(train_file)
@@ -236,19 +241,6 @@ class ContentBasedLearning:
 
         print(f"Original positives: {vs['isPrerequisite'].sum()}, Pseudo positives: {vs['k'].sum()}")
 
-        pseudo_predictions = pseudo_predictions.merge(vs[['conceptA', 'k']], on='conceptA', how='left')
-
-        pseudo_pos = pseudo_predictions.groupby('conceptA').apply(lambda x: x.head(int(x['k'].values[0]))).reset_index(
-            drop=True)
-        pseudo_neg = pseudo_predictions.groupby('conceptA').apply(lambda x: x.tail(int(x['k'].values[0]))).reset_index(
-            drop=True)
-
-        # Create new rows for positive pseudo-labels
-        new_pos_rows = [self.create_new_row(row, train, 1) for _, row in pseudo_pos.iterrows()]
-
-        # Create new rows for negative pseudo-labels
-        new_neg_rows = [self.create_new_row(row, train, 0) for _, row in pseudo_neg.iterrows()]
-
-        pseudo_data = pd.DataFrame(new_pos_rows + new_neg_rows)
+        pseudo_data = unite_pos_neg(pseudo_predictions, vs, train)
 
         return pseudo_data

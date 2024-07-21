@@ -3,7 +3,7 @@ import pandas as pd
 from ncf.ncf import NCF
 from ncf.dataset import Dataset as NCFDataset
 
-from config import SEED, ENCODED_SPLIT_PATH, NCF_THRESHOLD
+from config import SEED, ENCODED_SPLIT_PATH
 
 from utils import *
 
@@ -35,7 +35,7 @@ class GraphBasedLearning:
 
         self.model.fit(data)
 
-    def predict(self):
+    def predict(self, threshold):
         df = pd.read_csv(ENCODED_SPLIT_PATH)
         predictions = [[row.conceptA, row.conceptB, self.model.predict(row.conceptA, row.conceptB)]
                        for (_, row) in df.iterrows()]
@@ -46,7 +46,7 @@ class GraphBasedLearning:
         predictions['dataset'] = df['dataset']
         predictions['_split_set'] = df['_split_set']
         sorted_predictions = predictions.sort_values(by='isPrerequisite_pred', ascending=False)
-        sorted_predictions['pred'] = (sorted_predictions['isPrerequisite_pred'] >= NCF_THRESHOLD).astype(int)
+        sorted_predictions['pred'] = (sorted_predictions['isPrerequisite_pred'] >= threshold).astype(int)
 
         return sorted_predictions
 
@@ -77,11 +77,6 @@ class GraphBasedLearning:
 
         vs['isPrerequisite'].sum(), vs['k'].sum()
 
-        pseudo_predictions = pseudo_predictions.merge(vs[['conceptA', 'k']], on='conceptA', how='left')
+        pseudo_data = unite_pos_neg(pseudo_predictions, vs, train)
 
-        pseudo_pos = pseudo_predictions.groupby('conceptA').apply(lambda x: x.head(int(x['k'].values[0]))).reset_index(
-            drop=True)
-        pseudo_neg = pseudo_predictions.groupby('conceptA').apply(lambda x: x.tail(int(x['k'].values[0]))).reset_index(
-            drop=True)
-
-        return pseudo_pos, pseudo_neg
+        return pseudo_data
