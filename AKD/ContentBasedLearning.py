@@ -98,8 +98,8 @@ class ContentBasedLearning:
 
     def create_train_test_dataset(self, train_file, test_file):
         # Load the train, test set
-        train = pd.read_csv(train_file)
-        test = pd.read_csv(test_file)
+        train = pd.read_csv(train_file).drop_duplicates()
+        test = pd.read_csv(test_file).drop_duplicates()
 
         # Process train and test sets
         x_train_list, y_train_list = self.process_dataset(train)
@@ -229,7 +229,7 @@ class ContentBasedLearning:
     #     return new_row
 
     def generate_pseudo_data(self, train_file):
-        train = pd.read_csv(train_file)
+        train = pd.read_csv(train_file).drop_duplicates()
 
         pseudo_predictions = self.generate_all_predictions(train)
 
