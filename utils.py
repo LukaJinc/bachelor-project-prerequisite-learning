@@ -24,7 +24,7 @@ def create_new_row(row, train, is_pos):
     new_row['isPrerequisite'] = is_pos
 
     new_row['dataset'] = 'pseudo'
-    new_row['file'] = conceptA_row['fileA']
+    new_row['fileA'] = conceptA_row['fileA']
     new_row['fileB'] = conceptB_row['fileB']
 
     new_row['conceptA_ind'] = conceptA_row['conceptA_ind']

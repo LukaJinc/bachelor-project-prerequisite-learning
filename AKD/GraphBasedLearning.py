@@ -3,11 +3,15 @@ import pandas as pd
 from ncf.ncf import NCF
 from ncf.dataset import Dataset as NCFDataset
 
-from config import SEED, ENCODED_SPLIT_PATH
+from config import SEED
 
 from utils import *
 
 import warnings
+import os
+PATH = os.path.dirname(os.getcwd())
+
+ENCODED_SPLIT_PATH = os.path.join(PATH, r'data/akd_united_split_set')
 
 warnings.filterwarnings('ignore')
 

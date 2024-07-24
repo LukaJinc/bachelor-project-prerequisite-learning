@@ -10,11 +10,13 @@ import pandas as pd
 
 from sklearn.metrics import f1_score, accuracy_score
 
-from config import SEED, EMBEDDINGS_PATH
+from config import SEED
 
 from utils import *
 
 import warnings
+import os
+PATH = os.path.dirname(os.getcwd())
 
 tf.get_logger().setLevel('ERROR')  # only show error messages
 
@@ -49,11 +51,11 @@ class ContentBasedLearning:
 
         # Load the embedding dataframes
         self.embedding_dfs = {
-            'al_cpl': pd.read_csv(EMBEDDINGS_PATH + r'\al_cpl_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+            'al_cpl': pd.read_csv(os.path.join(PATH, 'embeddings/al_cpl_embeddings_mistral.csv'), index_col='Unnamed: 0').to_dict(
                 orient='index'),
-            'drive': pd.read_csv(EMBEDDINGS_PATH + r'\drive_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+            'drive': pd.read_csv(os.path.join(PATH, r'embeddings/drive_embeddings_mistral.csv'), index_col='Unnamed: 0').to_dict(
                 orient='index'),
-            'mooc': pd.read_csv(EMBEDDINGS_PATH + r'\mooc_embeddings_mistral.csv', index_col='Unnamed: 0').to_dict(
+            'mooc': pd.read_csv(os.path.join(PATH, r'embeddings/mooc_embeddings_mistral.csv'), index_col='Unnamed: 0').to_dict(
                 orient='index')
         }
 
