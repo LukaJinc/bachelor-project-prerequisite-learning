@@ -81,7 +81,7 @@ class ContentBasedLearning:
         y_list = []
 
         for _, row in df.iterrows():
-            fileA = row['file']
+            fileA = row['fileA']
             fileB = row['fileB']
 
             # Get embeddings for conceptA and conceptB
@@ -160,7 +160,7 @@ class ContentBasedLearning:
         a_info = dict()
         for c in train.iterrows():
             a = c[1]
-            a_info[a['conceptA']] = (a['file'], a['conceptA_ind'])
+            a_info[a['conceptA']] = (a['fileA'], a['conceptA_ind'])
 
         b_info = dict()
         for c in train.iterrows():
@@ -205,28 +205,6 @@ class ContentBasedLearning:
 
         return pseudo_predictions
 
-    # def create_new_row(self, row, train, is_pos):
-    #     # Find the row in train for conceptA
-    #     conceptA_row = train[train['conceptA'] == row['conceptA']].iloc[0]
-    #
-    #     # Find the row in train for conceptB
-    #     conceptB_row = train[train['conceptB'] == row['conceptB']].iloc[0]
-    #
-    #     # Create a new row with all columns from conceptA_row
-    #     new_row = conceptA_row.copy()
-    #
-    #     new_row['conceptA'] = row['conceptA']
-    #     new_row['conceptB'] = row['conceptB']
-    #     new_row['isPrerequisite'] = is_pos
-    #
-    #     new_row['dataset'] = 'pseudo'
-    #     new_row['file'] = conceptA_row['file']
-    #     new_row['fileB'] = conceptB_row['file']
-    #
-    #     new_row['conceptA_ind'] = conceptB_row['conceptA_ind']
-    #     new_row['conceptB_ind'] = conceptB_row['conceptB_ind']
-    #
-    #     return new_row
 
     def generate_pseudo_data(self, train_file):
         train = pd.read_csv(train_file).drop_duplicates()

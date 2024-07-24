@@ -1,13 +1,14 @@
 SEED = 42
 
-PATH = f'C:/Users/Luka/Documents/University/bachelor-project-prerequisite-learning/generated_data/'
-EMBEDDINGS_PATH = 'C:/Users/Luka/Documents/University/bachelor-project-prerequisite-learning/embeddings'
+DATA_PATH = f'C:/Users/Luka/Documents/University/bachelor-project-prerequisite-learning/data/'
+EMBEDDINGS_PATH = 'C:/Users/Luka/Documents/University/bachelor-project-prerequisite-learning/embeddings/'
+
+
+TRAIN_TEST_FOLDER = 'train_test/'
+PSEUDO_FOLDER = 'pseudo/'
+CROSS_VALIDATION_FOLDER = 'cross_validation/'
+UNITED_DATA_FOLDER = 'united_data/'
+
 
 NCF_THRESHOLD = 0.29
-
-DATA_PATH = PATH + 'united_data_embeddings.csv'
-ENCODED_PATH = PATH + 'united_data_encoded_embeddings.csv'
-ENCODED_SPLIT_PATH = PATH + 'akd_united_split_set'
-
-train_file = PATH + f'akd_train_{SEED}.csv'
-test_file = PATH + f'akd_test_{SEED}.csv'
+COIN_TOSS_PROB = 0.25

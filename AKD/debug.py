@@ -10,7 +10,7 @@ from config import train_file, test_file, PATH
 from sklearn.metrics import recall_score, precision_score, f1_score, classification_report
 
 
-train_path = 'C:/Users/Luka/Documents/University/bachelor-project-prerequisite-learning/generated_data/akd_united_pseudo_data_1_1.csv'
+train_path = '/data/akd_united_pseudo_data_1_1.csv'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 cbl = ContentBasedLearning(input_size=2048, device=device)

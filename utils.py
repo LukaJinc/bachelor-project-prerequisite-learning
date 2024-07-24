@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
+from config import COIN_TOSS_PROB
 
 
-def biased_coin_toss(n, p=0.10):
+def biased_coin_toss(n, p=COIN_TOSS_PROB):
     results = np.random.binomial(1, p, n)
     count_of_ones = np.sum(results)
     return count_of_ones
@@ -23,7 +24,7 @@ def create_new_row(row, train, is_pos):
     new_row['isPrerequisite'] = is_pos
 
     new_row['dataset'] = 'pseudo'
-    new_row['file'] = conceptA_row['file']
+    new_row['file'] = conceptA_row['fileA']
     new_row['fileB'] = conceptB_row['fileB']
 
     new_row['conceptA_ind'] = conceptA_row['conceptA_ind']
