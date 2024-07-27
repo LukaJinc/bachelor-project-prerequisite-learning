@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from flask import Flask, request, jsonify
 from mistralai.client import MistralClient
 
-MISTRAL_KEY = 'i5XyYjVEp3LT7zvEVIva3K2mSTHXMqjb'
+MISTRAL_KEY = ''  # TODO: YOUR KEY HERE
 MISTRAL_CLIENT = MistralClient(api_key=MISTRAL_KEY)
 
 # Initialize Flask app
